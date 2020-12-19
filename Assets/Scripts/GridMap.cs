@@ -18,6 +18,13 @@ public class GridMap<T>
         get { return gridArray.GetLength(0); }
     }
 
+    public GridMap(T[,] multiArrayT)
+    {
+        if (multiArrayT == null)
+            throw new NullReferenceException("Grid array cannot be null");
+
+        gridArray = multiArrayT;
+    }
     public GridMap(int w, int h)
     {
         if (w == 0 || h == 0)

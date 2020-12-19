@@ -44,6 +44,8 @@ public class NodemapComponent : MonoBehaviour
         _map = new Node[numberOfColumns, numberOfRows];
         _mapSize = new Vector2(mapWidth, mapHeight);
         _tileSize = AdjustTileSize();
+        GenerateNodesOnMap(numberOfColumns, numberOfRows);
+
 
         for (int x = 0; x < numberOfColumns; x++)
         {
@@ -66,6 +68,24 @@ public class NodemapComponent : MonoBehaviour
 
             }
         }
+
+        var pathFinding = new AstarPathfinding(new GridMap<Node>(_map));
+        var start = _map[0, 0];
+        var end = _map[5, 9];
+        var path = pathFinding.FindPath(start, end);
+
+        foreach (var item in path)
+        {
+            Vector2 pos = ComputePosition(item.X, item.Y, (int)transform.position.z, _tileSize);
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawCube(pos, _tileSize);
+        }
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
     }
 
     void GenerateNodesOnMap(int numberOfColumns, int numberOfRows)
