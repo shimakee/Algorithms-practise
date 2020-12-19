@@ -65,7 +65,11 @@ public class AstarPathfinding
 
         GetNeighborPathAndCost(first, first, second);
 
-        return EvaluatePathToDestination(first, second, _unvisitedNodes);
+        bool hasPath = EvaluatePathToDestination(first, second, _unvisitedNodes);
+
+        if (hasPath)
+            return GetNodesPath(second);
+        return null; // return null or path with empty?
     }
 
 
@@ -130,15 +134,13 @@ public class AstarPathfinding
         return new Queue<Node>(path.Reverse());
     }
 
-    Queue<Node> EvaluatePathToDestination(Node current, Node destination, IList<Node> unvisitedNodes)
+    bool EvaluatePathToDestination(Node current, Node destination, IList<Node> unvisitedNodes)
     {
         if (current == null || destination == null)
             Debug.LogError("destination and current node must not be null");
         if (current == destination || current.Position == destination.Position)
-            return GetNodesPath(destination);
-
-        //if (unvisitedNodes.Contains(current))
-        //    unvisitedNodes.Remove(current);
+            return true;
+            //return GetNodesPath(destination);
 
         MarkNodeAsVisisted(current);
         EvaluateNeighbors(current, destination);
@@ -146,7 +148,8 @@ public class AstarPathfinding
         if (unvisitedNodes.Count <= 0)
         {
             Debug.Log("No path to destination.");
-            return GetNodesPath(destination);
+            return false;
+            //return GetNodesPath(destination);
         }
 
         Node lowestCostUnvisitedNode = FindLowestCost(unvisitedNodes);

@@ -50,24 +50,25 @@ public class NodemapComponent : MonoBehaviour
 
         EstablishGridNodeConnectionForAll(numberOfColumns, numberOfRows);
 
-        ////Path finding
-        //var pathFinding = new AstarPathfinding(new GridMap<Node>(_map));
-        //var start = _map[0, 0];
-        //var end = _map[10, 5];
-        //var path = pathFinding.FindPath(start, end);
+        //Path finding
+        var pathFinding = new AstarPathfinding(new GridMap<Node>(_map));
+        var start = _map[0, 0];
+        var end = _map[10, 5];
+        var path = pathFinding.FindPath(start, end);
 
-        //foreach (var item in path)
-        //{
-        //    Vector2 pos = ComputePosition(item.X, item.Y, (int)transform.position.z, _tileSize);
+        if(path != null)
+        foreach (var item in path)
+        {
+            Vector2 pos = ComputePosition(item.X, item.Y, (int)transform.position.z, _tileSize);
 
-        //    Gizmos.color = Color.cyan;
-        //    Gizmos.DrawCube(pos, _tileSize);
-        //}
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawCube(pos, _tileSize);
+        }
 
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
-        //Gizmos.color = Color.blue;
-        //Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
+        Gizmos.color = Color.green;
+        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
     }
 
     
