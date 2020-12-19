@@ -11,7 +11,7 @@ public class MapMeshComponent : MonoBehaviour
 
     GridMap<GameObject> Map; //TODO:: will be removed once tilenode implements tile display
     GridMap<Node> _map;
-    AstarPathfinding _pathfinding;
+    //AstarPathfinding _pathfinding;
 
     Vector2 startPos;
     Vector2 endPos;
@@ -22,7 +22,7 @@ public class MapMeshComponent : MonoBehaviour
     private void Awake()
     {
         Map = GenerateGridMap(width, height, tileSample);
-        _pathfinding = new AstarPathfinding(width, height);
+        //_pathfinding = new AstarPathfinding(width, height);
     }
 
     // Start is called before the first frame update
@@ -34,44 +34,44 @@ public class MapMeshComponent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("mouse down");
-            Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z);
-            Vector2 ray = Camera.main.ScreenToWorldPoint(position);
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    Debug.Log("mouse down");
+        //    Vector3 position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z);
+        //    Vector2 ray = Camera.main.ScreenToWorldPoint(position);
+        //    RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
 
-            if(hit.collider.gameObject != null)
-            {
-                Debug.Log("hit");
+        //    if(hit.collider.gameObject != null)
+        //    {
+        //        Debug.Log("hit");
 
-                var gameObject = hit.collider.gameObject;
-                ChangeColorOnObject(gameObject, Color.cyan);
+        //        var gameObject = hit.collider.gameObject;
+        //        ChangeColorOnObject(gameObject, Color.cyan);
 
-                if (!startReady)
-                {
-                    startReady = true;
-                    startPos = gameObject.transform.position;
-                    ChangeColorOnObject(gameObject, Color.green);
-                }
-                else if(!endReady)
-                {
-                    endReady = true;
-                    endPos = gameObject.transform.position;
+        //        if (!startReady)
+        //        {
+        //            startReady = true;
+        //            startPos = gameObject.transform.position;
+        //            ChangeColorOnObject(gameObject, Color.green);
+        //        }
+        //        else if(!endReady)
+        //        {
+        //            endReady = true;
+        //            endPos = gameObject.transform.position;
 
-                    var path = _pathfinding.FindPath(startPos, endPos);
+        //            var path = _pathfinding.FindPath(startPos, endPos);
 
-                    foreach (var item in path)
-                    {
+        //            foreach (var item in path)
+        //            {
                         
-                        ChangeColorOnObject(Map[(int)item.x, (int)item.y], Color.gray);
+        //                ChangeColorOnObject(Map[(int)item.x, (int)item.y], Color.gray);
 
-                    }
+        //            }
 
-                    ChangeColorOnObject(gameObject, Color.blue);
-                }
-            }
-        }
+        //            ChangeColorOnObject(gameObject, Color.blue);
+        //        }
+        //    }
+        //}
     }
 
     #region Private Core Methods
@@ -93,43 +93,6 @@ public class MapMeshComponent : MonoBehaviour
 
         return map;
     }
-
-    void GenerateGridAdjacentNeighborsForNode(Node current)
-    {
-        if (current == null)
-            Debug.LogError("Node cannot be null in order to Find neighbors");
-
-        if(current.Neighbors == null)
-            current.SetNeighbors(new List<Node>());
-
-        current.Neighbors.Clear();
-
-        for (int x = -1; x < 2; x++)
-        {
-            for (int y = -1; y < 2; y++)
-            {
-                if (x == 0 && y == 0)
-                    continue;
-
-                int xCoordinate = current.X + x;
-                int yCoordinate = current.Y + y;
-                bool isBeyondMap = xCoordinate < 0 || xCoordinate >= Map.width ||
-                                    yCoordinate < 0 || yCoordinate >= Map.height;
-                if (isBeyondMap)
-                    continue;
-
-                Node neighbor = _map[xCoordinate, yCoordinate];
-                if (neighbor == null)
-                    _map[xCoordinate, yCoordinate] = neighbor = new Node(xCoordinate, yCoordinate);
-
-                //neighbors.Add(neighbor);
-                current.Neighbors.Add(neighbor);
-            }
-        }
-
-        //return neighbors;
-    }
-
 
     #endregion
 

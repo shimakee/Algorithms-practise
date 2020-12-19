@@ -7,10 +7,10 @@ public class NodemapComponent : MonoBehaviour
 {
     [Header("Map details:")]
     [Range(1, 50)] [SerializeField] float mapWidth = 10;
-    [Range(1, 50)] [SerializeField] float mapHeight = 10;
+    [Range(1, 50)][SerializeField] int numberOfColumns = 5;
 
     [Range(1, 50)][SerializeField] int numberOfRows = 5; //use resolution as well?
-    [Range(1, 50)][SerializeField] int numberOfColumns = 5;
+    [Range(1, 50)] [SerializeField] float mapHeight = 10;
 
     [Header("Tile details:")]
     [Range(0, 50)][SerializeField] float tileHeight = 0;
@@ -27,6 +27,8 @@ public class NodemapComponent : MonoBehaviour
         _map = new Node[numberOfColumns, numberOfRows];
         _tileSize = AdjustTileSize();
         GenerateNodesOnMap(numberOfColumns, numberOfRows);
+        EstablishGridNodeConnectionForAll(numberOfColumns, numberOfRows);
+
     }
 
     private void Start()
@@ -46,61 +48,29 @@ public class NodemapComponent : MonoBehaviour
         _tileSize = AdjustTileSize();
         GenerateNodesOnMap(numberOfColumns, numberOfRows);
 
+        EstablishGridNodeConnectionForAll(numberOfColumns, numberOfRows);
 
-        for (int x = 0; x < numberOfColumns; x++)
-        {
-            for (int y = 0; y < numberOfRows; y++)
-            {
-                var pos = ComputePosition(x, y, (int)transform.position.z, _tileSize);
+        ////Path finding
+        //var pathFinding = new AstarPathfinding(new GridMap<Node>(_map));
+        //var start = _map[0, 0];
+        //var end = _map[10, 5];
+        //var path = pathFinding.FindPath(start, end);
 
-                bool isCollided = Physics2D.BoxCast(pos, new Vector2(_tileSize.x *.9f, _tileSize.y * .9f), 0, new Vector2(0, 0));
+        //foreach (var item in path)
+        //{
+        //    Vector2 pos = ComputePosition(item.X, item.Y, (int)transform.position.z, _tileSize);
 
-                if (isCollided)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawWireCube(pos, new Vector3(_tileSize.x, _tileSize.y, _tileSize.y));
-                }
-                else
-                {
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawWireCube(pos, new Vector3(_tileSize.x, _tileSize.y, _tileSize.y));
-                }
+        //    Gizmos.color = Color.cyan;
+        //    Gizmos.DrawCube(pos, _tileSize);
+        //}
 
-            }
-        }
-
-        var pathFinding = new AstarPathfinding(new GridMap<Node>(_map));
-        var start = _map[0, 0];
-        var end = _map[5, 9];
-        var path = pathFinding.FindPath(start, end);
-
-        foreach (var item in path)
-        {
-            Vector2 pos = ComputePosition(item.X, item.Y, (int)transform.position.z, _tileSize);
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawCube(pos, _tileSize);
-        }
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
+        //Gizmos.color = Color.green;
+        //Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
+        //Gizmos.color = Color.blue;
+        //Gizmos.DrawCube(ComputePosition(start.X, start.Y, (int)transform.position.z, _tileSize), _tileSize);
     }
 
-    void GenerateNodesOnMap(int numberOfColumns, int numberOfRows)
-    {
-        for (int x = 0; x < numberOfColumns; x++)
-        {
-            for (int y = 0; y < numberOfRows; y++)
-            {
-                var pos = ComputePosition(x, y, (int)transform.position.z, _tileSize);
-                bool canPass = !Physics2D.BoxCast(pos, new Vector2(_tileSize.x * .9f, _tileSize.y * .9f), 0, new Vector2(0, 0));
-
-                _map[x, y] = new Node(x, y, canPass);
-            }
-        }
-    }
+    
 
     #region Core Methods
     Vector3 AdjustTileSize()
@@ -123,6 +93,73 @@ public class NodemapComponent : MonoBehaviour
 
         Vector3 pos = new Vector3(xPos, yPos, zPos);
         return pos;
+    }
+
+    void GenerateNodesOnMap(int numberOfColumns, int numberOfRows)
+    {
+        for (int x = 0; x < numberOfColumns; x++)
+        {
+            for (int y = 0; y < numberOfRows; y++)
+            {
+                var pos = ComputePosition(x, y, (int)transform.position.z, _tileSize);
+                bool canPass = !Physics2D.BoxCast(pos, new Vector2(_tileSize.x * .9f, _tileSize.y * .9f), 0, new Vector2(0, 0));
+
+                _map[x, y] = new Node(x, y, canPass);
+
+                //Gizmos - can remove
+                if (!canPass)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawWireCube(pos, new Vector3(_tileSize.x, _tileSize.y, _tileSize.y));
+                }
+                else
+                {
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawWireCube(pos, new Vector3(_tileSize.x, _tileSize.y, _tileSize.y));
+                }
+            }
+        }
+    }
+
+    void EstablishGridNodeConnectionForAll(int numberOfColumns, int numberOfRows)
+    {
+        for (int x = 0; x < numberOfColumns; x++)
+        {
+            for (int y = 0; y < numberOfRows; y++)
+            {
+                EstablishGridNodeConnection(_map[x, y]);
+            }
+        }
+    }
+
+    void EstablishGridNodeConnection(Node current)
+    {
+        if (current == null)
+            Debug.LogError("Node cannot be null in order to assign neighbors");
+
+        current.Neighbors.Clear();
+
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
+            {
+                if (x == 0 && y == 0)
+                    continue;
+
+                int xCoordinate = current.X + x;
+                int yCoordinate = current.Y + y;
+                bool isBeyondMap = xCoordinate < 0 || xCoordinate >= Map.GetLength(0) ||
+                                    yCoordinate < 0 || yCoordinate >= Map.GetLength(1);
+                if (isBeyondMap)
+                    continue;
+
+                Node neighbor = Map[xCoordinate, yCoordinate];
+                if (neighbor == null)
+                    continue;
+
+                current.Neighbors.Add(neighbor);
+            }
+        }
     }
 
     #endregion
