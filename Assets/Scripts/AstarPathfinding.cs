@@ -5,27 +5,27 @@ using UnityEngine;
 
 public class AstarPathfinding
 {
-    public GridMap<Tilenode> Map { get { return _map; } }
-    public Queue<Tilenode> VisitedNodes { get { return _visitedNodes; } }
-    public List<Tilenode> UnVisitedNodes { get { return _unvisitedNodes; } }
+    public GridMap<Node> Map { get { return _map; } }
+    public Queue<Node> VisitedNodes { get { return _visitedNodes; } }
+    public List<Node> UnVisitedNodes { get { return _unvisitedNodes; } }
 
-    GridMap<Tilenode> _map;
-    Queue<Tilenode> _visitedNodes;
-    List<Tilenode> _unvisitedNodes;
+    GridMap<Node> _map;
+    Queue<Node> _visitedNodes;
+    List<Node> _unvisitedNodes;
 
     public AstarPathfinding()
     {
-        _visitedNodes = new Queue<Tilenode>();
-        _unvisitedNodes = new List<Tilenode>();
+        _visitedNodes = new Queue<Node>();
+        _unvisitedNodes = new List<Node>();
     }
-    public AstarPathfinding(GridMap<Tilenode> Map)
+    public AstarPathfinding(GridMap<Node> Map)
         :this()
     {
         _map = Map;
     }
 
     public AstarPathfinding(int width, int height)
-        :this(new GridMap<Tilenode>(width, height))
+        :this(new GridMap<Node>(width, height))
     {
     }
 
@@ -36,14 +36,14 @@ public class AstarPathfinding
         if (isBeyondMap)
             Debug.LogError("Vector coordinates for map are out of bounds.");
 
-        Tilenode firstNode = EstablishVectorToMapAsNodes(first);
-        Tilenode secondNode = EstablishVectorToMapAsNodes(second);
+        Node firstNode = EstablishVectorToMapAsNodes(first);
+        Node secondNode = EstablishVectorToMapAsNodes(second);
 
-        Queue<Tilenode> path = FindPath(firstNode, secondNode);
+        Queue<Node> path = FindPath(firstNode, secondNode);
 
         return ConvertNodesToVector(path);
     }
-    public Queue<Tilenode> FindPath(Tilenode first, Tilenode second)
+    public Queue<Node> FindPath(Node first, Node second)
     {
         if (first == null || second == null)
             Debug.LogError("Null parameters given");
@@ -57,7 +57,7 @@ public class AstarPathfinding
         {
             Debug.Log("No path to calculate, origin and destination are in the same position.");
 
-            Queue<Tilenode> path = new Queue<Tilenode>();
+            Queue<Node> path = new Queue<Node>();
             path.Enqueue(first);
 
             return path;
@@ -69,66 +69,14 @@ public class AstarPathfinding
     }
 
 
-    #region Utility Methods
-
-    public void AssignNodeToMap(Vector2 position, Tilenode node)
-    {
-
-        //Tilenode should be an enum of premade tilenode types
-
-        if (node == null)
-            Debug.Log("Cannot assign a null node to map");
-
-        var mapNode = Map[node.X, node.Y];
-        if (mapNode != null)
-        {
-            for (int i = 0; i < mapNode.Neighbors.Count; i++)
-            {
-                var neighbor = mapNode.Neighbors[i];
-
-                neighbor.Neighbors.Remove(mapNode);
-                neighbor.Neighbors.Add(node);
-                node.Neighbors.Add(neighbor);
-            }
-        }
-        else
-        {
-            Map[node.X, node.Y] = node;
-        }
-    }
-
-    public void RemoveNodeFromMap(Vector2 node)
-    {
-        if (node == null)
-            Debug.Log("Cannot remove a null node to map");
-    }
-    public void SetNodesCost(IList<Vector2> coordinates, int cost)
-    {
-        for (int i = 0; i < coordinates.Count; i++)
-        {
-            SetNodeGcost(coordinates[i], cost);
-        }
-    }
-
-    public void SetNodeGcost(Vector2 position, int cost)
-    {
-        SetNodeGcost((int)position.x, (int)position.y, cost);
-    }
-    void SetNodeGcost(int x, int y, int cost)
-    {
-        var node = Map[x, y];
-
-        if(node != null)
-            node.GCost = cost;
-    }
-    #endregion
+    
 
 
     #region Private Core Methods
-    Queue<Vector2> ConvertNodesToVector(IEnumerable<Tilenode> tilenodes)
+    Queue<Vector2> ConvertNodesToVector(IEnumerable<Node> tilenodes)
     {
         Queue<Vector2> vectorPath = new Queue<Vector2>();
-        Tilenode[] nodes = tilenodes.ToArray();
+        Node[] nodes = tilenodes.ToArray();
 
         for (int i = 0; i < nodes.Length; i++)
         {
@@ -140,7 +88,7 @@ public class AstarPathfinding
 
         return vectorPath;
     }
-    Tilenode EstablishVectorToMapAsNodes(Vector2 node)
+    Node EstablishVectorToMapAsNodes(Vector2 node)
     {
         bool isBeyondMap = node.x < 0 || node.x >= Map.width || node.y < 0 || node.y >= Map.height;
         if (isBeyondMap)
@@ -149,17 +97,17 @@ public class AstarPathfinding
         var firstNode = Map[(int)node.x, (int)node.y];
 
         if (firstNode == null)
-            Map[(int)node.x, (int)node.y] = firstNode = new Tilenode((int)node.x, (int)node.y);
+            Map[(int)node.x, (int)node.y] = firstNode = new Node((int)node.x, (int)node.y);
 
         return firstNode;
     }
 
-    Queue<Tilenode> GetNodesPath(Tilenode destination)
+    Queue<Node> GetNodesPath(Node destination)
     {
         if (destination == null)
             Debug.LogError("Argument cannot be null");
 
-        Queue<Tilenode> path = new Queue<Tilenode>();
+        Queue<Node> path = new Queue<Node>();
         var currentNode = destination;
 
         do
@@ -174,10 +122,10 @@ public class AstarPathfinding
 
         } while (currentNode.PreviousNode != null || currentNode != currentNode.PreviousNode);
 
-        return new Queue<Tilenode>(path.Reverse());
+        return new Queue<Node>(path.Reverse());
     }
 
-    Queue<Tilenode> EvaluatePathToDestination(Tilenode current, Tilenode destination, IList<Tilenode> unvisitedNodes)
+    Queue<Node> EvaluatePathToDestination(Node current, Node destination, IList<Node> unvisitedNodes)
     {
         if (current == null || destination == null)
             Debug.LogError("destination and current node must not be null");
@@ -209,12 +157,12 @@ public class AstarPathfinding
             EvaluateNeighborPathAndCost(current, neighbor, destination);
         }
 
-        Tilenode lowestCostUnvisitedNode = FindLowestCost(unvisitedNodes);
+        Node lowestCostUnvisitedNode = FindLowestCost(unvisitedNodes);
 
         return EvaluatePathToDestination(lowestCostUnvisitedNode, destination, unvisitedNodes);
     }
 
-    void AssignGridNeighborsForNode(Tilenode current)
+    void AssignGridNeighborsForNode(Node current)
     {
         if (current == null)
             Debug.LogError("Node cannot be null in order to assign neighbors");
@@ -236,9 +184,9 @@ public class AstarPathfinding
                 if (isBeyondMap)
                     continue;
 
-                Tilenode neighbor = Map[xCoordinate, yCoordinate];
+                Node neighbor = Map[xCoordinate, yCoordinate];
                 if (neighbor == null)
-                    Map[xCoordinate, yCoordinate] = neighbor = new Tilenode(xCoordinate, yCoordinate);
+                    Map[xCoordinate, yCoordinate] = neighbor = new Node(xCoordinate, yCoordinate);
 
                 //neighbors.Add(neighbor);
                 current.Neighbors.Add(neighbor);
@@ -249,30 +197,30 @@ public class AstarPathfinding
         //return neighbors;
     }
 
-    void AddNodeToUnvisitedQueue(Tilenode node)
+    void AddNodeToUnvisitedQueue(Node node)
     {
         if (!_unvisitedNodes.Contains(node) && !_visitedNodes.Contains(node))
             _unvisitedNodes.Add(node);
     }
 
-    void AddNodeToVisitedQueue(Tilenode node)
+    void AddNodeToVisitedQueue(Node node)
     {
         if (!VisitedNodes.Contains(node))
             VisitedNodes.Enqueue(node);
     }
 
-    void ToUnvisited(Tilenode node)
+    void ToUnvisited(Node node)
     {
         if (!_unvisitedNodes.Contains(node) && !_visitedNodes.Contains(node))
             _unvisitedNodes.Add(node);
     }
 
-    Tilenode FindLowestCost(IList<Tilenode> nodes)
+    Node FindLowestCost(IList<Node> nodes)
     {
         if (nodes.Count <= 0)
             return null;
 
-        Tilenode lowestCost = null;
+        Node lowestCost = null;
         for (int i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
@@ -296,7 +244,7 @@ public class AstarPathfinding
         return lowestCost;
     }
 
-    int ComputeCost(Tilenode first, Tilenode second)
+    int ComputeCost(Node first, Node second)
     {
         var xDiff = first.X - second.X;
         var yDiff = first.Y - second.Y;
@@ -306,7 +254,7 @@ public class AstarPathfinding
         return (int)(cost * 10);
     }
 
-    void EvaluateNeighborPathAndCost(Tilenode current, Tilenode neighbor, Tilenode destination)
+    void EvaluateNeighborPathAndCost(Node current, Node neighbor, Node destination)
     {
         var computedValue = ComputeCost(current, neighbor);
         int gCost = computedValue + current.GCost;

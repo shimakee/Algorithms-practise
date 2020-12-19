@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class Pathfinding
 {
-    public GridMap<Tilenode> Map { get { return _map; } }
-    GridMap<Tilenode> _map;
-    List<Tilenode> visitedNodes;
-    List<Tilenode> unvisitedNodes;
+    public GridMap<Node> Map { get { return _map; } }
+    GridMap<Node> _map;
+    List<Node> visitedNodes;
+    List<Node> unvisitedNodes;
 
     public Pathfinding(int width, int height)
     {
-        _map = new GridMap<Tilenode>(width, height);
-        visitedNodes = new List<Tilenode>();
-        unvisitedNodes = new List<Tilenode>();
+        _map = new GridMap<Node>(width, height);
+        visitedNodes = new List<Node>();
+        unvisitedNodes = new List<Node>();
     }
 
     //    //establish preset info on startin and destination node
@@ -54,7 +54,7 @@ public class Pathfinding
 
     public List<Vector2> FindPath(Vector2 first, Vector2 second)
     {
-        List<Tilenode> path = FindPath(new Tilenode((int)first.x, (int)first.y), new Tilenode((int)second.x, (int)second.y));
+        List<Node> path = FindPath(new Node((int)first.x, (int)first.y), new Node((int)second.x, (int)second.y));
         Debug.Log($"Path count {path.Count}");
 
         List<Vector2> vectorPath = new List<Vector2>();
@@ -69,7 +69,7 @@ public class Pathfinding
 
         return vectorPath;
     }
-    public List<Tilenode> FindPath(Tilenode first, Tilenode second)
+    public List<Node> FindPath(Node first, Node second)
     {
         if (first == null || second == null)
             Debug.LogError("Null parameters given");
@@ -84,9 +84,9 @@ public class Pathfinding
         return EvaluatePathToDestination(first, second);
     }
 
-    List<Tilenode> GetNodesPath(Tilenode destination)
+    List<Node> GetNodesPath(Node destination)
     {
-        List<Tilenode> path = new List<Tilenode>();
+        List<Node> path = new List<Node>();
 
         var currentNode = destination;
 
@@ -102,7 +102,7 @@ public class Pathfinding
         return path;
     }
 
-    List<Tilenode> EvaluatePathToDestination(Tilenode current, Tilenode destination)
+    List<Node> EvaluatePathToDestination(Node current, Node destination)
     {
         if (current == null || destination == null)
             Debug.LogError("destination and current node must not be null");
@@ -128,9 +128,9 @@ public class Pathfinding
                 if (isBeyondMap)
                     continue;
 
-                Tilenode neighbor = Map[xCoordinate, yCoordinate];
+                Node neighbor = Map[xCoordinate, yCoordinate];
                 if (neighbor == null)
-                    Map[xCoordinate, yCoordinate] = neighbor = new Tilenode(xCoordinate, yCoordinate);
+                    Map[xCoordinate, yCoordinate] = neighbor = new Node(xCoordinate, yCoordinate);
 
                 current.Neighbors.Add(neighbor);
 
@@ -141,12 +141,12 @@ public class Pathfinding
 
         toVisisted(current);
 
-        Tilenode lowestUnvisitedNode = FindUnvisitedNodeWithLowestCost();
+        Node lowestUnvisitedNode = FindUnvisitedNodeWithLowestCost();
 
         return EvaluatePathToDestination(lowestUnvisitedNode, destination);
     }
 
-    void AssignNodeToMap(Tilenode node)
+    void AssignNodeToMap(Node node)
     {
         if (node == null)
             Debug.LogError("node cannot be null");
@@ -157,7 +157,7 @@ public class Pathfinding
 
         Map[node.X, node.Y] = node;
     }
-    void toVisisted(Tilenode node)
+    void toVisisted(Node node)
     {
         if (!visitedNodes.Contains(node))
             visitedNodes.Add(node);
@@ -165,22 +165,22 @@ public class Pathfinding
             unvisitedNodes.Remove(node);
     }
 
-    void ToUnvisited(Tilenode node)
+    void ToUnvisited(Node node)
     {
         if (!unvisitedNodes.Contains(node) && !visitedNodes.Contains(node))
             unvisitedNodes.Add(node);
     }
 
-    Tilenode FindUnvisitedNodeWithLowestCost()
+    Node FindUnvisitedNodeWithLowestCost()
     {
         return FindLowestCost(unvisitedNodes);
     }
-    Tilenode FindLowestCost(IList<Tilenode> nodes)
+    Node FindLowestCost(IList<Node> nodes)
     {
         if (nodes.Count <= 0)
             return null;
 
-        Tilenode lowestCost = null;
+        Node lowestCost = null;
         for (int i = 0; i < nodes.Count; i++)
         {
             var node = nodes[i];
@@ -204,7 +204,7 @@ public class Pathfinding
         return lowestCost;
     }
 
-    int ComputeCost(Tilenode first, Tilenode second)
+    int ComputeCost(Node first, Node second)
     {
         var xDiff = first.X - second.X;
         var yDiff = first.Y - second.Y;
@@ -214,7 +214,7 @@ public class Pathfinding
         return (int)(cost * 10);
     }
 
-    void EstablishNeighborPathAndCost(Tilenode current, Tilenode neighbor, Tilenode destination)
+    void EstablishNeighborPathAndCost(Node current, Node neighbor, Node destination)
     {
         var computedValue = ComputeCost(current, neighbor);
         int gCost = computedValue + current.GCost;

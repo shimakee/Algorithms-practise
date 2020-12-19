@@ -10,7 +10,7 @@ public class MapMeshComponent : MonoBehaviour
     [SerializeField] int width = 10;
 
     GridMap<GameObject> Map; //TODO:: will be removed once tilenode implements tile display
-    GridMap<Tilenode> _map;
+    GridMap<Node> _map;
     AstarPathfinding _pathfinding;
 
     Vector2 startPos;
@@ -94,13 +94,13 @@ public class MapMeshComponent : MonoBehaviour
         return map;
     }
 
-    void GenerateGridAdjacentNeighborsForNode(Tilenode current)
+    void GenerateGridAdjacentNeighborsForNode(Node current)
     {
         if (current == null)
             Debug.LogError("Node cannot be null in order to Find neighbors");
 
         if(current.Neighbors == null)
-            current.SetNeighbors(new List<Tilenode>());
+            current.SetNeighbors(new List<Node>());
 
         current.Neighbors.Clear();
 
@@ -118,9 +118,9 @@ public class MapMeshComponent : MonoBehaviour
                 if (isBeyondMap)
                     continue;
 
-                Tilenode neighbor = _map[xCoordinate, yCoordinate];
+                Node neighbor = _map[xCoordinate, yCoordinate];
                 if (neighbor == null)
-                    _map[xCoordinate, yCoordinate] = neighbor = new Tilenode(xCoordinate, yCoordinate);
+                    _map[xCoordinate, yCoordinate] = neighbor = new Node(xCoordinate, yCoordinate);
 
                 //neighbors.Add(neighbor);
                 current.Neighbors.Add(neighbor);
@@ -136,7 +136,7 @@ public class MapMeshComponent : MonoBehaviour
     #region For now
 
 
-    void WriteInfoOnObject(Tilenode tile, GameObject gameObject)
+    void WriteInfoOnObject(Node tile, GameObject gameObject)
     {
         var components = gameObject.GetComponentsInChildren<TextMeshProUGUI>();
 
