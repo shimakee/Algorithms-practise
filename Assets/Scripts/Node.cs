@@ -20,21 +20,27 @@ public class Node
         public static bool operator !=(Point first, Point other) => !Equals(first, other);
     }
 
-    public Point Position;
     public bool CanPass;
-    public int X { get { return Position.X; } }
-    public int Y { get { return Position.Y; } }
+    public Point Position;
+    public int x { get { return Position.X; } }
+    public int y { get { return Position.Y; } }
     public IList<Node> Neighbors { get; private set; }
     public Node PreviousNode { get; set; }
-    public int GCost { get; set; }
-    public int HCost { get; set; }
-    public int FCost { get { return GCost + HCost; } }
+    public int Fcost { get { return Gcost + Hcost; } }
+    public int baseCost, Hcost, Gcost;
 
     public void SetNeighbors(IList<Node> tilenodes)
     {
         if (tilenodes == null || tilenodes.Count <= 0)
             throw new NullReferenceException("List is cannot be empty or null");
         Neighbors = tilenodes;
+    }
+
+    public void ClearNode()
+    {
+        PreviousNode = null;
+        Gcost = 0;
+        Hcost = 0;
     }
     public Node(int x, int y)
     {

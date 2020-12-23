@@ -2,16 +2,16 @@
     "name": "PlayerControls",
     "maps": [
         {
-            "name": "Mouse",
+            "name": "Mouse Gamepad",
             "id": "e85210ef-aae5-4f7c-bca7-4cb93f7128a0",
             "actions": [
                 {
                     "name": "Movement",
                     "type": "Value",
                     "id": "a7a326e5-82ad-4f20-8344-02ee533648fb",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Vector2",
                     "processors": "",
-                    "interactions": "Press(behavior=2)"
+                    "interactions": ""
                 },
                 {
                     "name": "Add start node",
@@ -19,7 +19,7 @@
                     "id": "f0ccad15-fec8-452a-bb52-a57666903758",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press(behavior=2)"
+                    "interactions": "Press"
                 },
                 {
                     "name": "Add goal node",
@@ -27,7 +27,7 @@
                     "id": "f847d8c9-7852-4d54-a9bb-7ff89128dbf6",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press(behavior=2)"
+                    "interactions": "Press"
                 },
                 {
                     "name": "Add block node",
@@ -35,7 +35,7 @@
                     "id": "55e4f65b-482c-4344-90eb-4c765e76256b",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press(behavior=2)"
+                    "interactions": "Press"
                 },
                 {
                     "name": "Add slow node",
@@ -43,14 +43,22 @@
                     "id": "31ad5b09-070f-40ea-b23d-ff4006f49321",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "Press(behavior=2)"
+                    "interactions": "Press"
+                },
+                {
+                    "name": "Find path",
+                    "type": "Button",
+                    "id": "a9550eb4-dd70-4012-9b08-1f14120a4e82",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press"
                 }
             ],
             "bindings": [
                 {
                     "name": "",
                     "id": "3dde48be-06f0-4bef-a277-338fcca75f9c",
-                    "path": "",
+                    "path": "<Keyboard>/numpad4",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default Scheme",
@@ -60,8 +68,19 @@
                 },
                 {
                     "name": "",
+                    "id": "762d8d5f-8a9c-470c-aefd-a8bf06d0fa4e",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Add start node",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "7930fa17-54c7-4210-8489-ab588f15abe5",
-                    "path": "",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default Scheme",
@@ -71,8 +90,19 @@
                 },
                 {
                     "name": "",
+                    "id": "a8594cb8-a3af-4058-8f1f-b1ebd2fd39f7",
+                    "path": "<Keyboard>/numpad6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Add goal node",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "22926f91-6e79-46a8-82c8-fd671d6fc1fb",
-                    "path": "",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default Scheme",
@@ -82,8 +112,19 @@
                 },
                 {
                     "name": "",
+                    "id": "cfe24efb-ab52-4c11-80c6-26c6fa02fb40",
+                    "path": "<Keyboard>/numpad8",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Add block node",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "2e38d03a-318e-4252-bb6a-e0479e3084a2",
-                    "path": "",
+                    "path": "<Keyboard>/numpad5",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default Scheme",
@@ -93,12 +134,100 @@
                 },
                 {
                     "name": "",
+                    "id": "36239e2a-4b34-45aa-b9ea-bdf0c3818358",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Add slow node",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "03670e45-1822-409d-afea-19410aa4a928",
-                    "path": "",
+                    "path": "<Gamepad>/dpad",
                     "interactions": "",
                     "processors": "",
                     "groups": "Default Scheme",
                     "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Wasd",
+                    "id": "fa148c53-ef31-49fb-aafb-532f28dce98e",
+                    "path": "2DVector",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "e50a2a84-1658-4fb3-b9cf-021451c0e6c8",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "3c2a451c-1010-46a3-9902-cb407cebf71f",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "d7bf5b07-83ef-4cf6-adaa-485cf0570e23",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "89f72ab6-6546-4ab2-9c4c-413659092860",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "cad193ab-8d25-494d-971f-4b9c386ac006",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "NormalizeVector2,StickDeadzone(min=0.4,max=0.9)",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "706dd869-8a2e-4e58-8e1a-e05d15fc8740",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Find path",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

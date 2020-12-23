@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AstarPathfinding
+public class AstarPathfinding : IPathfinding
 {
-    public GridMap<Node> Map { get { return _map; } }
     public Queue<Node> VisitedNodes { get { return _visitedNodes; } }
-    public List<Node> UnVisitedNodes { get { return _unvisitedNodes; } }
+    public List<Node> UnvisitedNodes { get { return _unvisitedNodes; } }
 
-    GridMap<Node> _map;
     Queue<Node> _visitedNodes;
     List<Node> _unvisitedNodes;
 
@@ -18,42 +16,13 @@ public class AstarPathfinding
         _visitedNodes = new Queue<Node>();
         _unvisitedNodes = new List<Node>();
     }
-    public AstarPathfinding(GridMap<Node> Map)
-        :this()
-    {
-        _map = Map;
-    }
 
-    public AstarPathfinding(int width, int height)
-        :this(new GridMap<Node>(width, height))
-    {
-    }
-
-    public Queue<Vector2> FindPath(Vector2 first, Vector2 second)
-    {
-        bool isBeyondMap = first.x < 0 || first.x >= Map.width || first.y < 0 || first.y >= Map.height ||
-                            second.x < 0 || second.x >= Map.width || second.y < 0 || second.y >= Map.height;
-        if (isBeyondMap)
-            Debug.LogError("Vector coordinates for map are out of bounds.");
-
-        Node firstNode = EstablishVectorToMapAsNodes(first);
-        Node secondNode = EstablishVectorToMapAsNodes(second);
-
-        Queue<Node> path = FindPath(firstNode, secondNode);
-
-        return ConvertNodesToVector(path);
-    }
     public Queue<Node> FindPath(Node first, Node second)
     {
         if (first == null || second == null)
             Debug.LogError("Null parameters given");
 
-        bool isBeyondMap = first.X < 0 || first.X >= Map.width || first.Y < 0 || first.Y >= Map.height ||
-                            second.X < 0 || second.X >= Map.width || second.Y < 0 || second.Y >= Map.height;
-        if (isBeyondMap)
-            Debug.LogError("Tilenode coordinates are out of bounds from map.");
-
-        if (first.Position == second.Position)
+        if (first.Position == second.Position || first == second)
         {
             Debug.Log("No path to calculate, origin and destination are in the same position.");
 
@@ -63,12 +32,17 @@ public class AstarPathfinding
             return path;
         }
 
+        first.PreviousNode = null;
+        second.PreviousNode = null;
+        _visitedNodes.Clear();
+        _unvisitedNodes.Clear();
+
         GetNeighborPathAndCost(first, first, second);
 
         bool hasPath = EvaluatePathToDestination(first, second, _unvisitedNodes);
 
         if (hasPath)
-            return GetNodesPath(second);
+            return GetNodesPath(first, second);
         return null; // return null or path with empty?
     }
 
@@ -77,36 +51,8 @@ public class AstarPathfinding
 
 
     #region Private Core Methods
-    Queue<Vector2> ConvertNodesToVector(IEnumerable<Node> tilenodes)
-    {
-        Queue<Vector2> vectorPath = new Queue<Vector2>();
-        Node[] nodes = tilenodes.ToArray();
 
-        for (int i = 0; i < nodes.Length; i++)
-        {
-            var node = nodes[i];
-            Vector2 vector = new Vector2(node.X, node.Y);
-
-            vectorPath.Enqueue(vector);
-        }
-
-        return vectorPath;
-    }
-    Node EstablishVectorToMapAsNodes(Vector2 node)
-    {
-        bool isBeyondMap = node.x < 0 || node.x >= Map.width || node.y < 0 || node.y >= Map.height;
-        if (isBeyondMap)
-            Debug.LogError("Vector coordinates for map are out of bounds.");
-
-        var firstNode = Map[(int)node.x, (int)node.y];
-
-        if (firstNode == null)
-            Map[(int)node.x, (int)node.y] = firstNode = new Node((int)node.x, (int)node.y);
-
-        return firstNode;
-    }
-
-    Queue<Node> GetNodesPath(Node destination)
+    Queue<Node> GetNodesPath(Node start, Node destination)
     {
         if (destination == null)
             Debug.LogError("Argument cannot be null");
@@ -116,20 +62,23 @@ public class AstarPathfinding
 
         do
         {
-            if(!path.Contains(currentNode))
+            if (!path.Contains(currentNode))
                 path.Enqueue(currentNode);
 
-            bool isCurrentNodeNull = currentNode.PreviousNode == null;
-            if (isCurrentNodeNull)
+            if (currentNode == start || currentNode.Position == start.Position)
                 break;
-            bool isPreviousSameAsCurrent = currentNode == currentNode.PreviousNode ||
-                                            currentNode.Position == currentNode.PreviousNode.Position;
-            if (isPreviousSameAsCurrent)
+
+            if (currentNode.PreviousNode == null)
                 break;
+
+            //bool isPreviousSameAsCurrent = currentNode == currentNode.PreviousNode ||
+            //                                currentNode.Position == currentNode.PreviousNode.Position;
+            //if (isPreviousSameAsCurrent)
+            //    break;
 
             currentNode = currentNode.PreviousNode;
-
-        } while (currentNode.PreviousNode != null || currentNode != currentNode.PreviousNode);
+        } while (currentNode != start || currentNode.Position != start.Position);
+        //} while (currentNode.PreviousNode != null || currentNode != currentNode.PreviousNode);
 
         return new Queue<Node>(path.Reverse());
     }
@@ -140,7 +89,6 @@ public class AstarPathfinding
             Debug.LogError("destination and current node must not be null");
         if (current == destination || current.Position == destination.Position)
             return true;
-            //return GetNodesPath(destination);
 
         MarkNodeAsVisisted(current);
         EvaluateNeighbors(current, destination);
@@ -149,7 +97,6 @@ public class AstarPathfinding
         {
             Debug.Log("No path to destination.");
             return false;
-            //return GetNodesPath(destination);
         }
 
         Node lowestCostUnvisitedNode = FindLowestCost(unvisitedNodes);
@@ -188,8 +135,8 @@ public class AstarPathfinding
     {
         if (!VisitedNodes.Contains(node))
             VisitedNodes.Enqueue(node);
-        if (UnVisitedNodes.Contains(node))
-            UnVisitedNodes.Remove(node);
+        if (UnvisitedNodes.Contains(node))
+            UnvisitedNodes.Remove(node);
     }
 
     Node FindLowestCost(IList<Node> nodes)
@@ -211,13 +158,13 @@ public class AstarPathfinding
                 continue;
             }
 
-            if (lowestCost.FCost == node.FCost)
+            if (lowestCost.Fcost == node.Fcost)
             {
-                lowestCost = (lowestCost.HCost < node.HCost) ? lowestCost : node;
+                lowestCost = (lowestCost.Hcost < node.Hcost) ? lowestCost : node;
             }
             else
             {
-                lowestCost = (lowestCost.FCost < node.FCost) ? lowestCost : node;
+                lowestCost = (lowestCost.Fcost < node.Fcost) ? lowestCost : node;
             }
 
         }
@@ -225,10 +172,10 @@ public class AstarPathfinding
         return lowestCost;
     }
 
-    int ComputeCost(Node first, Node second)
+    int ComputeDistance(Node first, Node second)
     {
-        var xDiff = first.X - second.X;
-        var yDiff = first.Y - second.Y;
+        var xDiff = first.x - second.x;
+        var yDiff = first.y - second.y;
 
         var cost = Mathf.Sqrt((xDiff * xDiff) + (yDiff * yDiff));
 
@@ -237,20 +184,24 @@ public class AstarPathfinding
 
     void GetNeighborPathAndCost(Node current, Node neighbor, Node destination)
     {
-        var computedValue = ComputeCost(current, neighbor);
-        int gCost = computedValue + current.GCost;
+        if (current.CanPass && neighbor.CanPass)
+        {
+            var distance = ComputeDistance(current, neighbor);
+            int gCost = distance + current.Gcost + neighbor.baseCost;
 
-            if (neighbor.GCost > gCost || neighbor.PreviousNode == null)
+            if (gCost < neighbor.Gcost || neighbor.PreviousNode == null)
             {
-                neighbor.GCost = gCost;
-
-                //if (neighbor.Position != current.Position)
-                if(current.CanPass && neighbor.CanPass)
-                    neighbor.PreviousNode = current;
+                neighbor.Gcost = gCost;
+                neighbor.PreviousNode = current;
             }
 
-            neighbor.HCost = ComputeCost(neighbor, destination);
+            ComputeHCost(neighbor, destination);
+        }
+    }
 
+    void ComputeHCost(Node node, Node destination)
+    {
+        node.Hcost = ComputeDistance(node, destination);
     }
 
     #endregion
